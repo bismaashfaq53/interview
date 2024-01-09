@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,8 @@ Route::get('/', function () {
         'apple',
         'orrange'
     ];
-    
     return view('welcome');
 });
+Route::get('/tasks', [TaskController::class, 'index']);
+Route::post('/taskStore', [TaskController::class, 'store']);
+Route::post('/completeTask/{id}', [TaskController::class, 'completeTask'])->name('completeTask');
