@@ -24,4 +24,5 @@ Route::get('/', function () {
 });
 Route::get('/tasks', [TaskController::class, 'index']);
 Route::post('/taskStore', [TaskController::class, 'store']);
-Route::post('/completeTask/{id}', [TaskController::class, 'completeTask'])->name('completeTask');
+Route::get('/completeTask/{taskId}', [TaskController::class, 'completeTask'])->name('completeTask');
+Route::get('/fetchTasks', [TaskController::class, 'fetchTasks']);

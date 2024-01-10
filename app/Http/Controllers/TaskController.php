@@ -9,10 +9,15 @@ use App\Models\Task;
 class TaskController extends Controller
 {
     public function index()
-    {
-        $tasks = Task::paginate(10); // Fetch tasks with pagination, adjust per your needs
-        return view('tasks.index', ['tasks' => $tasks]);
-    }
+{
+    return view('tasks.index');
+}
+
+public function fetchTasks()
+{
+    $tasks = Task::all(); // Fetch tasks from the database
+    return response()->json(['data' => $tasks]); // Return tasks as JSON response
+}
 
     public function store(Request $request)
     {
@@ -23,10 +28,10 @@ class TaskController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Task created successfully']);
     }
-    public function completeTask($id)
+    public function completeTask($taskID)
 {
     // Find the task by ID and update the 'completed' field to 1
-    $task = Task::find($id);
+    $task = Task::find($taskID);
     
     if ($task) {
         $task->completed = 1;

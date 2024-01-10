@@ -8,6 +8,9 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
 
     <title>Task Management</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -38,7 +41,7 @@
 
 <body>
     <div class="container mt-5">
-       
+
         <section class="vh-100 gradient-custom-2">
             <div class="container py-5 h-100">
                 <div class="row d-flex justify-content-center align-items-center h-100">
@@ -68,41 +71,8 @@
                                             <th scope="col">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach ($tasks as $task)
-                                            <tr class="fw-normal">
-                                                <td class="align-middle">
-                                                    <h6 class="mb-0"><span
-                                                            class="badge bg-{{ $task->ID }}">{{ $task->id }}</span>
-                                                    </h6>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <h6 class="mb-0"><span
-                                                            class="badge bg-{{ $task->title }}">{{ $task->title }}</span>
-                                                    </h6>
-                                                </td>
-                                                <td class="align-middle">
-                                                    <h6 class="mb-0"><span
-                                                            class="badge bg-{{ $task->description }}">{{ $task->description }}</span>
-                                                    </h6>
-                                                </td>
-                                                <td class="align-middle">
-                                                    @if ($task->completed === 0)
-                                                        <button class="btn btn-danger">Pending</button>
-                                                    @else
-                                                        <button class="btn btn-success">Completed</button>
-                                                    @endif
-                                                </td>
-                                                <td class="align-middle">
-                                                    <button class="complete-task btn btn-link"
-                                                        data-task-id="{{ $task->id }}" data-mdb-toggle="tooltip"
-                                                        title="Done">
-                                                        <i class="fas fa-check fa-lg text-success me-3"></i>Complete
-                                                    </button>
+                                    <tbody id="taskList">
 
-                
-                                            </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
 
@@ -144,6 +114,54 @@
 
         </section>
         <script>
+            $(document).ready(function() {
+                // Function to fetch tasks
+                function fetchTasks() {
+                    $.ajax({
+                        url: '/fetchTasks',
+                        method: 'GET',
+                        success: function(response) {
+                            var taskListHtml = '';
+                            var serialNumber = 1;
+                            response.data.forEach(function(task) {
+                                taskListHtml += `
+                            <tr class="fw-normal">
+                                <td class="align-middle">${serialNumber}</td>
+
+                                <td class="align-middle">
+                                    <h6 class="mb-0">
+                                        <span class="badge bg-${task.title}">${task.title}</span>
+                                    </h6>
+                                </td>
+                                <td class="align-middle">
+                                    <h6 class="mb-0">
+                                        <span class="badge bg-${task.description}">${task.description}</span>
+                                    </h6>
+                                </td>
+                                <td class="align-middle">
+                                    ${task.completed === 0 ? '<button class="btn btn-danger">Pending</button>' : '<button class="btn btn-success">Completed</button>'}
+                                </td>
+                                <td class="align-middle">
+                                    <button class="complete-task btn btn-link text-white" data-task-id="${task.id}" data-mdb-toggle="tooltip" title="Done"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                     <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                                      </svg></button>
+                                </td>
+                            </tr>`;
+                            serialNumber++;
+                            });
+                            $('#taskList').html(taskListHtml);
+                        },
+                        error: function(error) {
+                            console.error(error);
+                        },
+                    });
+                }
+
+                // Call fetchTasks function on page load
+                fetchTasks();
+            });
+
+            //Store Function
             $('#taskForm').on('submit', function(event) {
                 event.preventDefault();
                 var formData = $(this).serialize();
@@ -153,68 +171,34 @@
                     data: formData,
                     success: function(response) {
                         alert(response.message);
-                        $('#addTaskModal').modal('hide'); 
-                        fetchTasks(); 
+                        $('#addTaskModal').modal('hide');
+                        fetchTasks();
                     },
                     error: function(error) {
                         console.error(error);
                         alert('Error adding task! Please try again.');
                     }
                 });
+                fetchTasks();
+
             });
 
-
-
-            function fetchTasks() {
-                $.ajax({
-                    url: '/tasks', 
-                    method: 'GET',
-                    success: function(response) {
-                        response.data.forEach(function(task) {
-                            var taskHtml =
-                                '<tr class="fw-normal">' +
-                                '<td class="align-middle"><h6 class="mb-0"><span class="badge bg-' +
-                                task.ID +
-                                '">' +
-                                task.id +
-                                '</span></h6></td>' +
-                                '<td class="align-middle"><h6 class="mb-0"><span class="badge bg-' +
-                                task.title +
-                                '">' +
-                                task.title +
-                                '</span></h6></td>' +
-                                '<td class="align-middle"><h6 class="mb-0"><span class="badge bg-' +
-                                task.description +
-                                '">' +
-                                task.description +
-                                '</span></h6></td>' +
-                                '<td class="align-middle"><a href="#!" data-mdb-toggle="tooltip" title="Done"><i class="fas fa-check fa-lg text-success me-3"></i></a>' +
-                                '<a href="#!" data-mdb-toggle="tooltip" title="Remove"><i class="bi bi-trash-fill text-warning"></i></a></td>' +
-                                '</tr>';
-
-                            $('tbody').append(taskHtml); 
-                        });
-                    },
-                    error: function(error) {
-                        console.error(error);
-                    },
-                });
-            }
+            //status update
 
             $(document).on('click', '.complete-task', function(event) {
                 event.preventDefault();
                 var taskId = $(this).data('task-id');
 
                 $.ajax({
-                    url: '/completeTask/' +
-                    taskId, 
-                    method: 'POST', 
+                    url: '{{ route('completeTask', ['taskId' => '__taskId__']) }}'.replace('__taskId__',
+                        taskId),
+                    method: 'GET',
                     data: {
                         completed: 1
-                    }, 
+                    },
                     success: function(response) {
                         alert('Task marked as completed!');
-                        fetchTasks(); 
+                        fetchTasks();
                     },
                     error: function(error) {
                         console.error(error);
