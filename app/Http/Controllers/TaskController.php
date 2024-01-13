@@ -15,8 +15,8 @@ class TaskController extends Controller
 
 public function fetchTasks()
 {
-    $tasks = Task::all(); // Fetch tasks from the database
-    return response()->json(['data' => $tasks]); // Return tasks as JSON response
+    $tasks = Task::all(); 
+    return response()->json(['data' => $tasks]); 
 }
 
     public function store(Request $request)
@@ -30,13 +30,24 @@ public function fetchTasks()
     }
     public function completeTask($taskID)
 {
-    // Find the task by ID and update the 'completed' field to 1
     $task = Task::find($taskID);
     
     if ($task) {
         $task->completed = 1;
         $task->save();
         return response()->json(['message' => 'Task marked as completed']);
+    }
+
+    return response()->json(['message' => 'Task not found'], 404);
+}
+
+public function deleteTask($id)
+{
+    $task = Task::find($id);
+
+    if ($task) {
+        $task->delete();
+        return response()->json(['message' => 'Task deleted successfully']);
     }
 
     return response()->json(['message' => 'Task not found'], 404);
